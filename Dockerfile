@@ -13,8 +13,10 @@ RUN a2enmod rewrite
 # Set the working directory in the container
 WORKDIR /var/www/html
 
-# Copy the source code into the container
-COPY ./api /var/www/html/
+# Copy the 'api', 'db', and 'models' folders from the host to the container
+COPY ./api /var/www/html/api/
+COPY ./db /var/www/html/db/
+COPY ./models /var/www/html/models/
 
 # Set proper permissions for the web server to access files
 RUN chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html

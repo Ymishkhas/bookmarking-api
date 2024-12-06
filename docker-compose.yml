@@ -27,7 +27,9 @@ services:
     depends_on:
       - db
     volumes:
-      - ./api:/var/www/html
+      - ./api:/var/www/html/api
+      - ./db:/var/www/html/db
+      - ./models:/var/www/html/models
     networks:
       - api_network
 
