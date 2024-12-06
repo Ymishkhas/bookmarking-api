@@ -72,10 +72,10 @@ class Bookmark
     public function readAll() {
         $query = "SELECT * FROM ".$this->dbTable;
         $stmt = $this->dbConnection->prepare($query);
-        if($stmt->execute() && $stmt->rowCount() > 1){
-            return true;
+        if($stmt->execute() && $stmt->rowCount() > 0){
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
-        return false;
+        return [];
     }
 
     public function update(){
