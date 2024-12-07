@@ -16,13 +16,23 @@ header('Access-Control-Allow-Methods: GET');
 // Check the authorizatoin header
 $headers = getallheaders();
 if(!isset($headers['Authorization'])){
-    http_response_code(403);
+    http_response_code(401);
     echo json_encode(
-        value: array('message' => 'Error missing authorization header')
+        array('message' => 'Error missing authorization header')
     );
     return;
 }
-$token = str_replace('Bearer ', '', $headers['Authorization']);
+$api_key = str_replace('Bearer ', '', $headers['Authorization']);
+
+// Validate the api key
+$API_SERVER_KEY = getenv('API_SERVER_KEY');
+if($api_key !== $API_SERVER_KEY){
+    http_response_code(403);
+    echo json_encode(
+        array('message'=> 'Error invalid API key')
+    );
+    return;
+}
 
 include_once '../db/Database.php';
 include_once '../models/Bookmark.php';
@@ -33,18 +43,18 @@ $dbConnection = $database->connect();
 // Instantiate a Bookmark object
 $bookmark = new Bookmark($dbConnection);
 
-// Get the HTTP GET request query parameter (e.g. ?id=14)
-if(!isset($_GET['id'])){
+// Get the HTTP GET request query parameter (e.g. ?id=14&&user_id='adfagagda')
+if(!isset($_GET['id']) || !isset($_GET['user_id'])){
     http_response_code(422);
     echo json_encode(
-        value: array('message' => 'Error missing requried query oarameter id.')
+        value: array('message' => 'Error missing requried query parameter id and user_id.')
     );
     return;
 }
 
 // Read Bookmark details
 $bookmark->setId($_GET['id']);
-$bookmark->setUserId($token);
+$bookmark->setUserId($_GET['user_id']);
 if($bookmark->readOne()){
     $result = array(
         'id' => $bookmark->getId(),

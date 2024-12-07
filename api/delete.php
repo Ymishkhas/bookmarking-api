@@ -16,13 +16,23 @@ header('Access-Control-Allow-Methods: DELETE');
 // Check the authorizatoin header
 $headers = getallheaders();
 if(!isset($headers['Authorization'])){
-    http_response_code(403);
+    http_response_code(401);
     echo json_encode(
-        value: array('message' => 'Error missing authorization header')
+        array('message' => 'Error missing authorization header')
     );
     return;
 }
-$token = str_replace('Bearer ', '', $headers['Authorization']);
+$api_key = str_replace('Bearer ', '', $headers['Authorization']);
+
+// Validate the api key
+$API_SERVER_KEY = getenv('API_SERVER_KEY');
+if($api_key !== $API_SERVER_KEY){
+    http_response_code(403);
+    echo json_encode(
+        array('message'=> 'Error invalid API key')
+    );
+    return;
+}
 
 include_once '../db/Database.php';
 include_once '../models/Bookmark.php';
@@ -34,19 +44,19 @@ $dbConnection = $database->connect();
 $bookmark = new Bookmark($dbConnection);
 
 // Get the HTTP DELETE request JSON body
-$data = json_decode(file_get_contents('php://input'));
+$data = json_decode(file_get_contents('php://input'), true);
 
-if(!$data || !$data->id){
+if(!$data || !isset($data['id']) || !isset($data['user_id'])){
     http_response_code(422);
     echo json_encode(
-        value: array('message' => 'Error missing requried parameter id in the JSON body')
+        array('message' => 'Error missing requried parameters id and user_id in the JSON body')
     );
     return;
 }
 
 // Delete the bookmark
-$bookmark->setId($data->id);
-$bookmark->setUserId($token);
+$bookmark->setId($data['id']);
+$bookmark->setUserId($data['user_id']);
 if($bookmark->delete()){
     echo json_encode(
         array('message' => 'The bookmark was deleted')

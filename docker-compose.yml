@@ -22,6 +22,7 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
       - DB_PORT=${DB_PORT}
+      - API_SERVER_KEY=${API_SERVER_KEY}
     ports:
       - 9000:80
     depends_on:
