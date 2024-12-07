@@ -13,6 +13,17 @@ header('Access-Control-Allow-Origin: *');
 header('Content-Type: Application/json');
 header('Access-Control-Allow-Methods: GET');
 
+// Check the authorizatoin header
+$headers = getallheaders();
+if(!isset($headers['Authorization'])){
+    http_response_code(403);
+    echo json_encode(
+        value: array('message' => 'Error missing authorization header')
+    );
+    return;
+}
+$token = str_replace('Bearer ', '', $headers['Authorization']);
+
 include_once '../db/Database.php';
 include_once '../models/Bookmark.php';
 
@@ -33,11 +44,14 @@ if(!isset($_GET['id'])){
 
 // Read Bookmark details
 $bookmark->setId($_GET['id']);
+$bookmark->setUserId($token);
 if($bookmark->readOne()){
     $result = array(
         'id' => $bookmark->getId(),
+        'user_id' => $bookmark->getUserId(),
         'title' => $bookmark->getTitle(),
         'url' => $bookmark->getUrl(),
+        'clicks_count' => $bookmark->getClicksCount(),
         'dateAdded' => $bookmark->getDateAdded(),
     );
     echo json_encode($result);

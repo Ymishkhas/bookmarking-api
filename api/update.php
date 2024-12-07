@@ -13,6 +13,17 @@ header('Access-Control-Allow-Origin: *');
 header('Content-Type: Application/json');
 header('Access-Control-Allow-Methods: PUT');
 
+// Check the authorizatoin header
+$headers = getallheaders();
+if(!isset($headers['Authorization'])){
+    http_response_code(403);
+    echo json_encode(
+        value: array('message' => 'Error missing authorization header')
+    );
+    return;
+}
+$token = str_replace('Bearer ', '', $headers['Authorization']);
+
 include_once '../db/Database.php';
 include_once '../models/Bookmark.php';
 
@@ -35,6 +46,7 @@ if(!$data || !$data->id || !$data->title || !$data->url){
 
 // Update the bookmark
 $bookmark->setId($data->id);
+$bookmark->setUserId($token);
 $bookmark->setTitle($data->title);
 $bookmark->setUrl($data->url);
 if($bookmark->update()){

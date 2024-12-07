@@ -33,9 +33,9 @@ $dbConnection = $database->connect();
 // Instantiate a Bookmark object
 $bookmark = new Bookmark($dbConnection);
 
-// Read all bookmarks
+// Read the 10 most clicked bookmarks
 $bookmark->setUserId($token);
-$result = $bookmark->readAll();
+$result = $bookmark->readMostClicked();
 if(!empty($result)){
     echo json_encode($result);
 }
