@@ -1,4 +1,13 @@
 <?php
+// Handle preflight request (OPTIONS)
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    header('Access-Control-Allow-Origin: *');  // Allow any origin, or specify a domain like 'http://localhost:5173'
+    header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');  // Allow GET, POST, and OPTIONS
+    header('Access-Control-Allow-Headers: Authorization, Content-Type');  // Allow specific headers
+    http_response_code(200);  // Return OK response for OPTIONS request
+    exit;
+}
+
 // check HTTP request method
 if($_SERVER['REQUEST_METHOD']!== 'POST'){
     header('Allow: POST');
